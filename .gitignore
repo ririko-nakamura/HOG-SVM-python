@@ -1,3 +1,7 @@
+data/smd_vis_onshore_coco_binary_0704/
+
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
