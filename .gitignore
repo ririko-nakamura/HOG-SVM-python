@@ -1,5 +1,9 @@
-data/images
+results/
 config.cfg
+
+# Data Files
+data/dataset
+data/features
 
 
 # VSCode configurations
@@ -63,10 +67,6 @@ docs/_build/
 
 # PyBuilder
 target/
-
-# Data Files
-data/dataset
-data/features
 
 # gedit crap
 *~
