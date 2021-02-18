@@ -17,7 +17,7 @@ neg_samples: 1
 pos_samples: 1
 
 [paths]
-pos_feat_ph: ../data/features/pos
-neg_feat_ph: ../data/features/neg
-model_path: ../data/models/svm.model
+pos_feat_ph: ./data/features/pos
+neg_feat_ph: ./data/features/neg
+model_path: ./data/models/svm.model
 

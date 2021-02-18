@@ -1,6 +1,10 @@
-data/smd_vis_onshore_coco_binary_0704/
+data/images
+config.cfg
 
+
+# VSCode configurations
 .vscode/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
