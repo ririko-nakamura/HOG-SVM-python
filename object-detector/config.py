@@ -7,7 +7,7 @@ import json
 
 #config = cp.RawConfigParser()
 config = RawConfigParser()
-config.read('../data/config/config.cfg')
+config.read('./data/config/config.cfg')
 
 min_wdw_sz = tuple(json.loads(config.get("hog","min_wdw_sz")))
 step_size = tuple(json.loads(config.get("hog", "step_size")))

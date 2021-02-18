@@ -26,17 +26,22 @@ def check_roi(roi, src_shape, ann_list):
             return 0
         else:
             return area_intersect / (area_a + area_b - area_intersect)
+    def refine_coord(x, low, high):
+        if x < low:
+            return low
+        if x > high:
+            return high
+        return x
 
-    roi[0] = max(roi[0], 0)
-    roi[1] = max(roi[1], 0)
-    roi[2] = min(roi[2], src_shape[1])
-    roi[3] = min(roi[3], src_shape[0])
-    roi[0] = min(roi[0], roi[2] - 1)
-    roi[1] = min(roi[1], roi[3] - 1)
+    roi[2] = refine_coord(roi[2], 1, src_shape[1])
+    roi[3] = refine_coord(roi[3], 1, src_shape[0])
+    roi[0] = refine_coord(roi[0], 0, roi[2] - 1)
+    roi[1] = refine_coord(roi[1], 0, roi[3] - 1)
 
     for ann in ann_list:
         bbox = [int(x) for x in ann['bbox']]
-        if IoU(roi, bbox) >= 0.3:
+        bbox = [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]
+        if IoU(roi, bbox) >= 0.75:
             return 1, roi
         if IoU(roi, bbox) >= 0.1:
             return 0, roi
@@ -46,15 +51,25 @@ def wrap_bbox(bbox, src_shape, dst_shape):
     def expand_distance(x, y, target, limit):
         mid = (x+y) // 2
         if mid < target // 2:
+            return 0, target
+        elif mid + target // 2 >= limit:
+            return limit - target, limit
+        else:
+            return mid - target//2, mid - target//2 + target
+
     aspect_ratio = dst_shape[0] / dst_shape[1]
-    bbox_w = bbox[2] - bbox[0]
-    bbox_h = bbox[3] - bbox[1]
+    bbox_w, bbox_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    src_w, src_h = src_shape[1], src_shape[0]
+
     if bbox_w / bbox_h < aspect_ratio:
         target = int(bbox_h * aspect_ratio)
-        if target <= src_shape[1]:
-            if bbox_w - 
+        if target <= src_w:
+            bbox[0], bbox[2] = expand_distance(bbox[0], bbox[2], target, src_w)
     else:
-        pass
+        target = int(bbox_w / aspect_ratio)
+        if target <= src_h:
+            bbox[1], bbox[3] = expand_distance(bbox[1], bbox[3], target, src_h)
+
     return bbox
 
 def save_patch(path, src, roi):
@@ -100,6 +115,7 @@ if __name__ == '__main__':
         for ann in ann_list:
 
             bbox = [int(x) for x in ann['bbox']]
+            bbox = [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]
             x = bbox[0]
             y = bbox[1]
 
@@ -120,9 +136,11 @@ if __name__ == '__main__':
                     break
 
             # Generate positive samples
-            roi = wrap_bbox(bbox, imge.shape, patch_size)
-
-            # TODO: padding for positive sample
+            roi = wrap_bbox(bbox, img.shape, patch_size)
+            _, roi = check_roi(roi, img.shape, ann_list)
+            save_patch(args.data_dir + '/pos' + '/pos_{}.jpg'.format(pos_count), img, roi)
+            pos_count = pos_count + 1
+            
             for trial in range(100):
                 delta_y = random.randint(-patch_h//8, patch_h//8)
                 delta_x = random.randint(-patch_w//8, patch_w//8)
@@ -132,3 +150,7 @@ if __name__ == '__main__':
                     save_patch(args.data_dir + '/pos' + '/pos_{}.jpg'.format(pos_count), img, roi)
                     pos_count = pos_count + 1
                     break
+
+        current_img_index = current_img_index + 1
+
+    print(pos_count, neg_count)

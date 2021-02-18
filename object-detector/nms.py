@@ -30,6 +30,25 @@ def overlapping_area(detection_1, detection_2):
     total_area = area_1 + area_2 - overlap_area
     return overlap_area / float(total_area)
 
+def merge(detection_1, detection_2):
+    # Calculate the x-y co-ordinates of the 
+    # rectangles
+    x1_tl = detection_1[0]
+    x2_tl = detection_2[0]
+    x1_br = detection_1[0] + detection_1[3]
+    x2_br = detection_2[0] + detection_2[3]
+    y1_tl = detection_1[1]
+    y2_tl = detection_2[1]
+    y1_br = detection_1[1] + detection_1[4]
+    y2_br = detection_2[1] + detection_2[4]
+
+    x_tl = min(x1_tl, x2_tl)
+    y_tl = min(y1_tl, y2_tl)
+    x_br = max(x1_br, x2_br)
+    y_br = max(y1_br, y2_br)
+    score = max(detection_1[2], detection_2[2])
+    return (x_tl, y_tl, score, x_br - x_tl, y_br - y_tl)
+
 def nms(detections, threshold=.5):
     '''
     This function performs Non-Maxima Suppression.
@@ -41,7 +60,7 @@ def nms(detections, threshold=.5):
     The output is a list of detections.
     '''
     if len(detections) == 0:
-	return []
+        return []
     # Sort the detections based on confidence score
     detections = sorted(detections, key=lambda detections: detections[2],
             reverse=True)
@@ -64,10 +83,26 @@ def nms(detections, threshold=.5):
         else:
             new_detections.append(detection)
             del detections[index]
+
+    end_flag = False
+    while not end_flag:
+        end_flag = True
+        for i in range(len(new_detections)):
+            for j in range(len(new_detections)):
+                if i == j:
+                    continue
+                if overlapping_area(new_detections[i], new_detections[j]) > 0:
+                    new_detections[i] = merge(new_detections[i], new_detections[j])
+                    del new_detections[j]
+                    end_flag = False
+                    break
+            if not end_flag:
+                break
+
     return new_detections
 
 if __name__ == "__main__":
     # Example of how to use the NMS Module
     detections = [[31, 31, .9, 10, 10], [31, 31, .12, 10, 10], [100, 34, .8,10, 10]]
-    print "Detections before NMS = {}".format(detections)
-    print "Detections after NMS = {}".format(nms(detections))
+    print("Detections before NMS = {}".format(detections))
+    print("Detections after NMS = {}".format(nms(detections)))
