@@ -7,7 +7,7 @@ import joblib
 import argparse as ap
 import glob
 import os
-from config import *
+from .config import *
 
 if __name__ == "__main__":
     # Argument Parser

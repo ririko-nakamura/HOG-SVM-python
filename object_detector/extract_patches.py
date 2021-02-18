@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import pycocotools.coco as coco
 
-from config import *
+from .config import *
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Extract positive and negative patches from a COCO-format dataset')
