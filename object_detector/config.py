@@ -1,13 +1,20 @@
 '''
 Set the config variable.
 '''
+import os, sys
 
 from configparser import RawConfigParser
 import json
 
-#config = cp.RawConfigParser()
+config_paths = [
+    './config.cfg',
+    './data/config/config.cfg',
+    './HOG-SVM-python/data/config/config.cfg'
+]
 config = RawConfigParser()
-config.read('./HOG-SVM-python/data/config/config.cfg')
+for path in config_paths:
+    if os.path.exists(path):
+        config.read(path)
 
 min_wdw_sz = tuple(json.loads(config.get("hog","min_wdw_sz")))
 step_size = tuple(json.loads(config.get("hog", "step_size")))

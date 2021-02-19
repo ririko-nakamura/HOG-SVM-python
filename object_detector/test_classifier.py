@@ -32,7 +32,7 @@ def sliding_window(image, window_size, step_size):
             yield (x, y, image[y:y + window_size[1], x:x + window_size[0]])
 
 
-def detect(clf, image):
+def detect(clf, im, downscale=1.25, visualize_det=False):
 
     # List to store the detections
     detections = []
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
         im = cv2.imread(os.path.join(dataset, image_fname))
 
-        detections = detect(clf, im)
+        detections = detect(clf, im, downscale=downscale, visualize_det=visualize_det)
 
         # Display the results after performing NMS
         for (x_tl, y_tl, _, w, h) in detections:
